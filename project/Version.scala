@@ -12,7 +12,7 @@ object Version {
 
   // Test
   val scalaCheck = "1.15.2"
-  val scalaTest = "3.2.3"
+  val scalaTest = "3.2.4"
   val scalaTestPlus = "3.2.2.0"
   val scalaMock = "5.1.0" 
 }
