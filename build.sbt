@@ -7,8 +7,8 @@ val TestScope = "it,test"
 lazy val commonSettings: Seq[SettingsDefinition] = Seq(
   Defaults.itSettings,
   organization := "com.github.scalagdx",
-  scalaVersion := "2.11.12",
-  crossScalaVersions := Seq("2.11.12", "2.12.12", "2.13.4"),
+  scalaVersion := "2.13.5",
+  crossScalaVersions := Seq("2.13.5", "2.12.12", "2.13.4"),
   libraryDependencies ++= Seq(
     compilerPlugin(kindProjector cross CrossVersion.full),
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
