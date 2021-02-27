@@ -8,7 +8,7 @@ lazy val commonSettings: Seq[SettingsDefinition] = Seq(
   Defaults.itSettings,
   organization := "com.github.scalagdx",
   scalaVersion := "2.11.12",
-  crossScalaVersions := Seq("2.11.12", "2.12.12", "2.13.4"),
+  crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.4"),
   libraryDependencies ++= Seq(
     compilerPlugin(kindProjector cross CrossVersion.full),
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
