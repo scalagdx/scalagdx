@@ -4,7 +4,7 @@ object Version {
 
   // Typelevel ecosystem
   val cats = "2.0.0"
-  val kindProjector = "0.11.3"
+  val kindProjector = "0.12.0"
 
   // Utility
   val newType = "0.4.4"
