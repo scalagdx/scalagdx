@@ -239,12 +239,13 @@ final class LwjglGraphics[F[_]: Sync: NonEmptyParallel](
   override val getDisplayModes: Stream[F, DisplayMode] =
     Stream
       .eval(Sync[F].delay(Display.getAvailableDisplayModes()))
-      .flatMap { availableDisplayModes =>
-        val displayModes = availableDisplayModes
-          .withFilter(_.isFullscreenCapable)
-          .map(toLwjglDisplayMode)
-        Stream(displayModes.toSeq: _*)
-      }
+      .flatMap(it =>
+        Stream(
+          it.withFilter(_.isFullscreenCapable)
+            .map(toLwjglDisplayMode)
+            .toSeq: _*,
+        ),
+      )
       .recoverWith { case _: LWJGLException =>
         Stream.raiseError(new GdxRuntimeException("Couldn't fetch available display modes."))
       }
