@@ -24,6 +24,7 @@
 package sdx.graphics
 
 import java.nio.Buffer
+import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
 /**
@@ -337,22 +338,275 @@ trait GL30[F[_]] extends GL20[F] {
   val GL_NUM_SAMPLE_COUNTS: Int = 0x9380
   val GL_TEXTURE_IMMUTABLE_LEVELS: Int = 0x82df
 
-  def glBlendFunc(sfactor: Int, dfactor: Int): F[Unit]
+  def glReadBuffer(mode: Int): F[Unit]
 
-  def glColorMask(red: Boolean, green: Boolean, blue: Boolean, alpha: Boolean): F[Unit]
+  def glDrawRangeElements(mode: Int, start: Int, end: Int, count: Int, `type`: Int, indices: Buffer): F[Unit]
 
-  def glCopyTexImage2D(
+  def glDrawRangeElements(mode: Int, start: Int, end: Int, count: Int, `type`: Int, offset: Int): F[Unit]
+
+  def glTexImage3D(
       target: Int,
       level: Int,
       internalformat: Int,
+      width: Int,
+      height: Int,
+      depth: Int,
+      border: Int,
+      format: Int,
+      `type`: Int,
+      pixels: Buffer,
+  ): F[Unit]
+
+  def glTexImage3D(
+      target: Int,
+      level: Int,
+      internalformat: Int,
+      width: Int,
+      height: Int,
+      depth: Int,
+      border: Int,
+      format: Int,
+      `type`: Int,
+      offset: Int,
+  ): F[Unit]
+
+  def glTexSubImage3D(
+      target: Int,
+      level: Int,
+      xoffset: Int,
+      yoffset: Int,
+      zoffset: Int,
+      width: Int,
+      height: Int,
+      depth: Int,
+      format: Int,
+      `type`: Int,
+      pixels: Buffer,
+  ): F[Unit]
+
+  def glTexSubImage3D(
+      target: Int,
+      level: Int,
+      xoffset: Int,
+      yoffset: Int,
+      zoffset: Int,
+      width: Int,
+      height: Int,
+      depth: Int,
+      format: Int,
+      `type`: Int,
+      offset: Int,
+  ): F[Unit]
+
+  def glCopyTexSubImage3D(
+      target: Int,
+      level: Int,
+      xoffset: Int,
+      yoffset: Int,
+      zoffset: Int,
       x: Int,
       y: Int,
       width: Int,
       height: Int,
-      border: Int,
   ): F[Unit]
 
-  def glGetBooleanv(pname: Int, params: Buffer): F[Unit]
+  def glGenQueries(n: Int, ids: Array[Int], offset: Int): F[Unit]
 
-  def glGetUniformiv(program: Int, location: Int, params: IntBuffer): F[Unit]
+  def glGenQueries(n: Int, ids: IntBuffer): F[Unit]
+
+  def glDeleteQueries(n: Int, ids: Array[Int], offset: Int): F[Unit]
+
+  def glDeleteQueries(n: Int, ids: IntBuffer): F[Unit]
+
+  def glIsQuery(id: Int): F[Boolean]
+
+  def glBeginQuery(target: Int, id: Int): F[Unit]
+
+  def glEndQuery(target: Int): F[Unit]
+
+  def glGetQueryiv(target: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glGetQueryObjectuiv(id: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glUnmapBuffer(target: Int): F[Boolean]
+
+  def glGetBufferPointerv(target: Int, pname: Int): F[Buffer]
+
+  def glDrawBuffers(n: Int, bufs: IntBuffer): F[Unit]
+
+  def glUniformMatrix2x3fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glUniformMatrix3x2fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glUniformMatrix2x4fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glUniformMatrix4x2fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glUniformMatrix3x4fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glUniformMatrix4x3fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): F[Unit]
+
+  def glBlitFramebuffer(
+      srcX0: Int,
+      srcY0: Int,
+      srcX1: Int,
+      srcY1: Int,
+      dstX0: Int,
+      dstY0: Int,
+      dstX1: Int,
+      dstY1: Int,
+      mask: Int,
+      filter: Int,
+  ): F[Unit]
+
+  def glRenderbufferStorageMultisample(target: Int, samples: Int, internalformat: Int, width: Int, height: Int): F[Unit]
+
+  def glFramebufferTextureLayer(target: Int, attachment: Int, texture: Int, level: Int, layer: Int): F[Unit]
+
+  def glMapBufferRange(target: Int, offset: Int, length: Int, access: Int): F[Buffer]
+
+  def glFlushMappedBufferRange(target: Int, offset: Int, length: Int): F[Unit]
+
+  def glBindVertexArray(array: Int): F[Unit]
+
+  def glDeleteVertexArrays(n: Int, arrays: Array[Int], offset: Int): F[Unit]
+
+  def glDeleteVertexArrays(n: Int, arrays: IntBuffer): F[Unit]
+
+  def glGenVertexArrays(n: Int, arrays: Array[Int], offset: Int): F[Unit]
+
+  def glGenVertexArrays(n: Int, arrays: IntBuffer): F[Unit]
+
+  def glIsVertexArray(array: Int): F[Boolean]
+
+  def glBeginTransformFeedback(primitiveMode: Int): F[Unit]
+
+  def glEndTransformFeedback: F[Unit]
+
+  def glBindBufferRange(target: Int, index: Int, buffer: Int, offset: Int, size: Int): F[Unit]
+
+  def glBindBufferBase(target: Int, index: Int, buffer: Int): F[Unit]
+
+  def glTransformFeedbackVaryings(program: Int, varyings: Array[String], bufferMode: Int): F[Unit]
+
+  def glVertexAttribIPointer(index: Int, size: Int, `type`: Int, stride: Int, offset: Int): F[Unit]
+
+  def glGetVertexAttribIiv(index: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glGetVertexAttribIuiv(index: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glVertexAttribI4i(index: Int, x: Int, y: Int, z: Int, w: Int): F[Unit]
+
+  def glVertexAttribI4ui(index: Int, x: Int, y: Int, z: Int, w: Int): F[Unit]
+
+  def glGetUniformuiv(program: Int, location: Int, params: IntBuffer): F[Unit]
+
+  def glGetFragDataLocation(program: Int, name: String): F[Int]
+
+  def glUniform1uiv(location: Int, count: Int, value: IntBuffer): F[Unit]
+
+  def glUniform3uiv(location: Int, count: Int, value: IntBuffer): F[Unit]
+
+  def glUniform4uiv(location: Int, count: Int, value: IntBuffer): F[Unit]
+
+  def glClearBufferiv(buffer: Int, drawbuffer: Int, value: IntBuffer): F[Unit]
+
+  def glClearBufferuiv(buffer: Int, drawbuffer: Int, value: IntBuffer): F[Unit]
+
+  def glClearBufferfv(buffer: Int, drawbuffer: Int, value: FloatBuffer): F[Unit]
+
+  def glClearBufferfi(buffer: Int, drawbuffer: Int, depth: Float, stencil: Int): F[Unit]
+
+  def glGetStringi(name: Int, index: Int): F[String]
+
+  def glCopyBufferSubData(readTarget: Int, writeTarget: Int, readOffset: Int, writeOffset: Int, size: Int): F[Unit]
+
+  def glGetUniformIndices(program: Int, uniformNames: Array[String], uniformIndices: IntBuffer): F[Unit]
+
+  def glGetActiveUniformsiv(
+      program: Int,
+      uniformCount: Int,
+      uniformIndices: IntBuffer,
+      pname: Int,
+      params: IntBuffer,
+  ): F[Unit]
+
+  def glGetUniformBlockIndex(program: Int, uniformBlockName: String): F[Int]
+
+  def glGetActiveUniformBlockiv(program: Int, uniformBlockIndex: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glGetActiveUniformBlockName(
+      program: Int,
+      uniformBlockIndex: Int,
+      length: Buffer,
+      uniformBlockName: Buffer,
+  ): F[Unit]
+
+  def glGetActiveUniformBlockName(program: Int, uniformBlockIndex: Int): F[String]
+
+  def glUniformBlockBinding(program: Int, uniformBlockIndex: Int, uniformBlockBinding: Int): F[Unit]
+
+  def glDrawArraysInstanced(mode: Int, first: Int, count: Int, instanceCount: Int): F[Unit]
+
+  def glDrawElementsInstanced(mode: Int, count: Int, `type`: Int, indicesOffset: Int, instanceCount: Int): F[Unit]
+
+  def glGetInteger64v(pname: Int, params: java.nio.LongBuffer): F[Unit]
+
+  def glGetBufferParameteri64v(target: Int, pname: Int, params: java.nio.LongBuffer): F[Unit]
+
+  def glGenSamplers(count: Int, samplers: Array[Int], offset: Int): F[Unit]
+
+  def glGenSamplers(count: Int, samplers: IntBuffer): F[Unit]
+
+  def glDeleteSamplers(count: Int, samplers: Array[Int], offset: Int): F[Unit]
+
+  def glDeleteSamplers(count: Int, samplers: IntBuffer): F[Unit]
+
+  def glIsSampler(sampler: Int): F[Boolean]
+
+  def glBindSampler(unit: Int, sampler: Int): F[Unit]
+
+  def glSamplerParameteri(sampler: Int, pname: Int, param: Int): F[Unit]
+
+  def glSamplerParameteriv(sampler: Int, pname: Int, param: IntBuffer): F[Unit]
+
+  def glSamplerParameterf(sampler: Int, pname: Int, param: Float): F[Unit]
+
+  def glSamplerParameterfv(sampler: Int, pname: Int, param: FloatBuffer): F[Unit]
+
+  def glGetSamplerParameteriv(sampler: Int, pname: Int, params: IntBuffer): F[Unit]
+
+  def glGetSamplerParameterfv(sampler: Int, pname: Int, params: FloatBuffer): F[Unit]
+
+  def glVertexAttribDivisor(index: Int, divisor: Int): F[Unit]
+
+  def glBindTransformFeedback(target: Int, id: Int): F[Unit]
+
+  def glDeleteTransformFeedbacks(n: Int, ids: Array[Int], offset: Int): F[Unit]
+
+  def glDeleteTransformFeedbacks(n: Int, ids: IntBuffer): F[Unit]
+
+  def glGenTransformFeedbacks(n: Int, ids: Array[Int], offset: Int): F[Unit]
+
+  def glGenTransformFeedbacks(n: Int, ids: IntBuffer): F[Unit]
+
+  def glIsTransformFeedback(id: Int): F[Boolean]
+
+  def glPauseTransformFeedback: F[Unit]
+
+  def glResumeTransformFeedback: F[Unit]
+
+  def glProgramParameteri(program: Int, pname: Int, value: Int): F[Unit]
+
+  def glInvalidateFramebuffer(target: Int, numAttachments: Int, attachments: IntBuffer): F[Unit]
+
+  def glInvalidateSubFramebuffer(
+      target: Int,
+      numAttachments: Int,
+      attachments: IntBuffer,
+      x: Int,
+      y: Int,
+      width: Int,
+      height: Int,
+  ): F[Unit]
 }

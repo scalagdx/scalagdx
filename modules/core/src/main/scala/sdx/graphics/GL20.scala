@@ -44,7 +44,7 @@ trait GL20[F[_]] {
 
   def glClearStencil(s: Int): F[Unit]
 
-  def glColorMask(r: Float, g: Float, b: Float, a: Float): F[Unit]
+  def glColorMask(r: Boolean, g: Boolean, b: Boolean, a: Boolean): F[Unit]
 
   def glCompressedTexImage2D(
       target: Int,
@@ -69,7 +69,16 @@ trait GL20[F[_]] {
       data: Buffer,
   ): F[Unit]
 
-  def glCopyTexImage2D(target: Int, level: Int, intervalFormat: Int, x: Int, y: Int, width: Int, border: Int): F[Unit]
+  def glCopyTexImage2D(
+      target: Int,
+      level: Int,
+      intervalFormat: Int,
+      x: Int,
+      y: Int,
+      width: Int,
+      height: Int,
+      border: Int,
+  ): F[Unit]
 
   def glCopyTexSubImage2D(
       target: Int,
@@ -270,7 +279,7 @@ trait GL20[F[_]] {
 
   def glGetUniformfv(program: Int, location: Int, params: FloatBuffer): F[Unit]
 
-  def glGetUniformfv(program: Int, location: Int, params: IntBuffer): F[Unit]
+  def glGetUniformiv(program: Int, location: Int, params: IntBuffer): F[Unit]
 
   def glGetUniformLocation(program: Int, name: String): F[Int]
 
