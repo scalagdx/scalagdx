@@ -5,7 +5,10 @@ import cats.effect.kernel.Sync
 import cats.syntax.all._
 import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Graphics.BufferFormat
+import com.badlogic.gdx.backends.lwjgl.newLwjglGL20
+import com.badlogic.gdx.backends.lwjgl.newLwjglGL30
 import com.badlogic.gdx.graphics.glutils.GLVersion
+import com.badlogic.gdx.utils.GdxRuntimeException
 import org.lwjgl.opengl
 import org.lwjgl.opengl.GL11
 import sdx.graphics.GL20
@@ -49,7 +52,37 @@ final class LwjglGraphicsBuilder[F[_]: Sync](
         .map(_.toSet)
   }
 
-  private def initiateGLInstances: F[(Ref[F, Option[GL20[F]]], Ref[F, Option[GL30[F]]])] = ???
+  private def supportsFBO(glVersion: GLVersion, extensions: Set[String]) =
+    glVersion.isVersionEqualToOrHigher(3, 0) ||
+      extensions.contains("GL_EXT_framebuffer_object") ||
+      extensions.contains("GL_ARB_framebuffer_object")
+
+  private def initiateGLInstances(
+      glVersion: GLVersion,
+      extensions: Set[String],
+  ): F[(Ref[F, Option[GL20[F]]], Ref[F, Option[GL30[F]]])] =
+    if (isGL30Enabled) {
+      val gl30: GL30[F] = new LwjglGL30[F](newLwjglGL20, newLwjglGL30)
+      val gl20: GL20[F] = gl30
+      for {
+        x <- Ref[F].of(gl20.some)
+        y <- Ref[F].of(Some[GL30[F]](gl30): Option[GL30[F]])
+      } yield x -> y
+    } else if (!glVersion.isVersionEqualToOrHigher(2, 0))
+      Sync[F].raiseError(
+        new GdxRuntimeException(s"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: ${GL11
+          .glGetString(GL11.GL_VERSION)}\n${glVersion.getDebugVersionString}"),
+      )
+    else if (!supportsFBO(glVersion, extensions))
+      Sync[F].raiseError(
+        new GdxRuntimeException(s"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: ${GL11
+          .glGetString(GL11.GL_VERSION)}, FBO extension: false${glVersion.getDebugVersionString}"),
+      )
+    else
+      for {
+        gl20 <- Ref[F].of(Some(new LwjglGL20[F](newLwjglGL20)): Option[GL20[F]])
+        gl30 <- Ref[F].of(None: Option[GL30[F]])
+      } yield gl20 -> gl30
 
   private def createDisplayPixelFormat(
       useGL30: Boolean,
@@ -78,7 +111,7 @@ final class LwjglGraphicsBuilder[F[_]: Sync](
     foregroundFPS <- Ref[F].of(0)
     glVersion <- extractVersion
     extensions <- extractExtensions(glVersion)
-    (gl20, gl30) <- initiateGLInstances
+    (gl20, gl30) <- initiateGLInstances(glVersion, extensions)
     bufferFormat <- createDisplayPixelFormat(isGL30Enabled, gles30ContextMajorVersion, gles30ContextMinorVersion)
   } yield new LwjglGraphics[F](
     canvas = this.canvas,

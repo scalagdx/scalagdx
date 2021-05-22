@@ -32,4 +32,8 @@ package object lwjgl {
     // Workaround to LwjglCursor#lwjglCursor being package private
     def lwjglCursor: Cursor = instance.lwjglCursor
   }
+
+  // Workaround due to their constructors being package private
+  def newLwjglGL20: LwjglGL20 = new LwjglGL20
+  def newLwjglGL30: LwjglGL30 = new LwjglGL30
 }
