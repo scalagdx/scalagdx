@@ -34,6 +34,7 @@ lazy val commonSettings: Seq[SettingsDefinition] = Seq(
     Wart.StringPlusAny,
     Wart.Var,
     Wart.Equals,
+    Wart.DefaultArguments,
   ),
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,

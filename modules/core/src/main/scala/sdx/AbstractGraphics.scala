@@ -23,14 +23,15 @@
  */
 package sdx
 
-import cats.Functor
-import cats.NonEmptyParallel
+import cats.Monad
 import cats.syntax.all._
 
-abstract class AbstractGraphics[F[_]: NonEmptyParallel: Functor] extends Graphics[F] {
+abstract class AbstractGraphics[F[_]: Monad] extends Graphics[F] {
 
   override val getDensity: F[Float] = getPpiX.map(_ / 160f)
 
-  override val getBackBufferScale: F[Float] =
-    (getBackBufferWidth, getWidth).parMapN { case (backBufferWidth, width) => backBufferWidth / width.toFloat }
+  override val getBackBufferScale: F[Float] = for {
+    backBufferWidth <- getBackBufferWidth
+    width <- getWidth
+  } yield backBufferWidth / width.toFloat
 }

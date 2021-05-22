@@ -23,7 +23,6 @@
  */
 package sdx.lwjgl
 
-import cats.NonEmptyParallel
 import cats.effect.kernel.Ref
 import cats.effect.kernel.Sync
 import cats.syntax.all._
@@ -78,7 +77,7 @@ import java.awt.Toolkit
  * @param bufferFormat The buffer format.
  * @param extensions The extensions.
  */
-final class LwjglGraphics[F[_]: Sync: NonEmptyParallel](
+final class LwjglGraphics[F[_]: Sync](
     canvas: Option[Canvas],
     frameId: Ref[F, Long],
     shouldResetDeltaTime: Ref[F, Boolean],
@@ -239,13 +238,12 @@ final class LwjglGraphics[F[_]: Sync: NonEmptyParallel](
   override val getDisplayModes: Stream[F, DisplayMode] =
     Stream
       .eval(Sync[F].delay(Display.getAvailableDisplayModes()))
-      .flatMap(it =>
-        Stream(
-          it.withFilter(_.isFullscreenCapable)
-            .map(toLwjglDisplayMode)
-            .toSeq: _*,
-        ),
-      )
+      .flatMap { availableDisplayModes =>
+        val displayModes = availableDisplayModes
+          .withFilter(_.isFullscreenCapable)
+          .map(toLwjglDisplayMode)
+        Stream(displayModes.toSeq: _*)
+      }
       .recoverWith { case _: LWJGLException =>
         Stream.raiseError(new GdxRuntimeException("Couldn't fetch available display modes."))
       }
