@@ -1,15 +1,18 @@
 package sdx.lwjgl
 
 import cats.effect.kernel.Ref
+import cats.effect.kernel.Sync
+import cats.syntax.all._
+import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Graphics.BufferFormat
 import com.badlogic.gdx.graphics.glutils.GLVersion
+import org.lwjgl.opengl
+import org.lwjgl.opengl.GL11
 import sdx.graphics.GL20
 import sdx.graphics.GL30
 
 import java.awt.Canvas
-import cats.effect.kernel.Sync
-
-import cats.syntax.all._
+import scala.annotation.tailrec
 
 final class LwjglGraphicsBuilder[F[_]: Sync](
     canvas: Option[Canvas],
@@ -23,9 +26,28 @@ final class LwjglGraphicsBuilder[F[_]: Sync](
     height: Int,
 ) {
 
-  private def extractVersion: F[GLVersion] = ???
+  private def extractVersion: F[GLVersion] = for {
+    version <- Sync[F].delay(GL11.glGetString(GL11.GL_VERSION))
+    vendor <- Sync[F].delay(GL11.glGetString(GL11.GL_VENDOR))
+    renderer <- Sync[F].delay(GL11.glGetString(GL11.GL_RENDERER))
+  } yield new GLVersion(ApplicationType.Desktop, version, vendor, renderer)
 
-  private def extractExtensions: F[Set[String]] = ???
+  private def extractExtensions(glVersion: GLVersion): F[Set[String]] = {
+    @tailrec def extract(i: Int, max: Int, extensions: List[F[String]]): List[F[String]] =
+      if (i < max)
+        extract(i + 1, max, Sync[F].delay(opengl.GL30.glGetStringi(GL20.GL_EXTENSIONS, i)) :: extensions)
+      else
+        extensions
+
+    if (glVersion.isVersionEqualToOrHigher(3, 2))
+      Sync[F]
+        .delay(GL11.glGetInteger(opengl.GL30.GL_NUM_EXTENSIONS))
+        .flatMap(extensions => extract(0, extensions, Nil).sequence.map(_.toSet))
+    else
+      Sync[F]
+        .delay(GL11.glGetString(GL20.GL_EXTENSIONS).split(" "))
+        .map(_.toSet)
+  }
 
   private def initiateGLInstances: F[(Ref[F, Option[GL20[F]]], Ref[F, Option[GL30[F]]])] = ???
 
@@ -55,7 +77,7 @@ final class LwjglGraphicsBuilder[F[_]: Sync](
     lastTime <- Ref[F].of(0L)
     foregroundFPS <- Ref[F].of(0)
     glVersion <- extractVersion
-    extensions <- extractExtensions
+    extensions <- extractExtensions(glVersion)
     (gl20, gl30) <- initiateGLInstances
     bufferFormat <- createDisplayPixelFormat(isGL30Enabled, gles30ContextMajorVersion, gles30ContextMinorVersion)
   } yield new LwjglGraphics[F](
