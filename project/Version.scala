@@ -6,7 +6,7 @@ object Version {
   val kindProjector = "0.13.0"
   val weaver = "0.7.3"
   val libGDX = "1.10.0"
-  val fs2 = "3.0.4"
+  val fs2 = "3.0.6"
   val organizeImports = "0.5.0"
   val lwjgl2 = "2.9.3"
 }
